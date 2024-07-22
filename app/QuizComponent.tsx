@@ -1,4 +1,3 @@
-// app/QuizComponent.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -92,8 +91,9 @@ const QuizComponent: React.FC = () => {
             ? (userAnswers[question.id] as string[]).includes(optionId)
             : userAnswers[question.id] === optionId;
 
+        if (isCorrect && isSelected) return 'bg-green-200 text-green-800';
+        if (isSelected && !isCorrect) return 'bg-red-200 text-red-800';
         if (isCorrect) return 'bg-green-200 text-green-800';
-        if (isSelected) return 'bg-red-200 text-red-800';
         return 'bg-gray-100 text-gray-800';
     };
 
@@ -143,25 +143,35 @@ const QuizComponent: React.FC = () => {
                     ) : (
                         <div className="space-y-2">
                             {question.options?.map((option) => (
-                                <label key={option.id} className={`block p-2 rounded ${getAnswerClass(question, option.id)}`}>
-                                    <input
-                                        type={question.type === 'mcq-single' ? 'radio' : 'checkbox'}
-                                        name={question.id}
-                                        value={option.id}
-                                        onChange={() => {
-                                            if (question.type === 'mcq-single') {
-                                                handleAnswer(question.id, option.id);
-                                            } else {
-                                                const currentAnswers = userAnswers[question.id] as string[] || [];
-                                                const updatedAnswers = currentAnswers.includes(option.id)
-                                                    ? currentAnswers.filter((id) => id !== option.id)
-                                                    : [...currentAnswers, option.id];
-                                                handleAnswer(question.id, updatedAnswers);
-                                            }
-                                        }}
-                                        disabled={submitted || timeUp}
-                                        className="mr-2"
-                                    />
+                                <label key={option.id} className={`flex items-center p-2 rounded cursor-pointer ${getAnswerClass(question, option.id)}`}>
+                                    <div className="relative w-5 h-5 mr-2">
+                                        <input
+                                            type={question.type === 'mcq-single' ? 'radio' : 'checkbox'}
+                                            name={question.id}
+                                            value={option.id}
+                                            onChange={() => {
+                                                if (question.type === 'mcq-single') {
+                                                    handleAnswer(question.id, option.id);
+                                                } else {
+                                                    const currentAnswers = userAnswers[question.id] as string[] || [];
+                                                    const updatedAnswers = currentAnswers.includes(option.id)
+                                                        ? currentAnswers.filter((id) => id !== option.id)
+                                                        : [...currentAnswers, option.id];
+                                                    handleAnswer(question.id, updatedAnswers);
+                                                }
+                                            }}
+                                            disabled={submitted || timeUp}
+                                            className="absolute opacity-0 w-0 h-0"
+                                        />
+                                        <div className="w-5 h-5 border-2 border-gray-400 rounded-full flex items-center justify-center">
+                                            <div className={`w-3 h-3 rounded-full ${(Array.isArray(userAnswers[question.id])
+                                                ? (userAnswers[question.id] as string[]).includes(option.id)
+                                                : userAnswers[question.id] === option.id)
+                                                ? 'bg-blue-500'
+                                                : ''
+                                                }`}></div>
+                                        </div>
+                                    </div>
                                     {option.text}
                                 </label>
                             ))}
